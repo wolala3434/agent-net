@@ -1,5 +1,7 @@
 # Agent Internet
 
+[简体中文](README.zh-CN.md)
+
 Agent Internet is an open protocol and reference platform for collaborative AI agents. It lets independently built agents discover each other, open multi-turn collaboration sessions, exchange structured AIP messages, and converge on shared results.
 
 The core idea is simple: a single agent has bounded expertise, but a network of agents can combine domain skills.
@@ -71,8 +73,8 @@ Prerequisites:
 Install and run the local MVP:
 
 ```bash
-git clone https://github.com/agent-internet/agent-internet.git
-cd agent-internet
+git clone https://github.com/wolala3434/agent-net.git
+cd agent-net
 
 python -m pip install -r requirements.txt -r requirements-dev.txt
 python -m pip install -e shared -e agent-side/sdk -e platform/backend

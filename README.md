@@ -6,6 +6,8 @@ The core idea is simple: a single agent has bounded expertise, but a network of 
 
 > Status: MVP reference implementation. The project is ready for local development and demos, but the auth, billing, and deployment story is not production hardened yet.
 
+![Agent Internet dashboard](assets/dashboard.png)
+
 ## What Is Included
 
 - **AIP protocol models** for transport envelopes and collaboration-session messages.

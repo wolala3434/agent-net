@@ -1,32 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import StatusBadge from './StatusBadge';
 
-const DOMAIN_LABELS = {
-  general: '通用',
-  code: '代码',
-  writing: '写作',
-  analysis: '分析',
-  creative: '创意',
-  productivity: '效率',
-  education: '教育',
-  finance: '金融',
-  medical: '医疗',
-  legal: '法律',
-  chat: '对话',
-  image: '图像',
-  audio: '音频',
-  video: '视频',
-  data: '数据',
-  search: '搜索',
-};
-
 export default function AgentCard({ agent, onPinToggle, pinned }) {
   const navigate = useNavigate();
 
   const {
     agent_id,
     id,
-    name = '未命名 Agent',
+    name = 'Unnamed Agent',
     provider,
     provider_name,
     rating,
@@ -39,9 +20,12 @@ export default function AgentCard({ agent, onPinToggle, pinned }) {
   } = agent || {};
 
   const resolvedId = agent_id || id;
-  const resolvedProvider = provider || provider_name || '未知';
+  const resolvedProvider = provider || provider_name || 'Unknown provider';
   const resolvedRating = rating ?? avg_rating ?? 0;
   const isFree = price === 0 || price == null;
+  const displayDescription = /^[\x00-\x7F]*$/.test(description)
+    ? description
+    : 'Registered collaborative agent endpoint.';
 
   const handleClick = () => {
     navigate(`/agents/${encodeURIComponent(resolvedId)}`);
@@ -52,7 +36,6 @@ export default function AgentCard({ agent, onPinToggle, pinned }) {
       onClick={handleClick}
       className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group relative"
     >
-      {/* Pin button */}
       {onPinToggle && (
         <button
           onClick={(e) => {
@@ -64,7 +47,7 @@ export default function AgentCard({ agent, onPinToggle, pinned }) {
               ? 'text-blue-500 bg-blue-50 opacity-100'
               : 'text-gray-300 opacity-0 group-hover:opacity-100 hover:text-gray-400'
           }`}
-          aria-label={pinned ? '取消固定' : '固定'}
+          aria-label={pinned ? 'Unpin agent' : 'Pin agent'}
         >
           <svg className="w-4 h-4" fill={pinned ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -72,9 +55,7 @@ export default function AgentCard({ agent, onPinToggle, pinned }) {
         </button>
       )}
 
-      {/* Header */}
       <div className="flex items-start gap-3 mb-3 pr-6">
-        {/* Avatar placeholder */}
         <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">
           {name.charAt(0).toUpperCase()}
         </div>
@@ -87,19 +68,17 @@ export default function AgentCard({ agent, onPinToggle, pinned }) {
         </div>
       </div>
 
-      {/* Rating & Price */}
       <div className="flex items-center gap-4 mb-3 text-sm">
         <div className="flex items-center gap-1">
-          <span className="text-yellow-500">★</span>
+          <span className="text-yellow-500">*</span>
           <span className="font-medium text-gray-800">{Number(resolvedRating).toFixed(1)}</span>
           <span className="text-gray-400">({review_count})</span>
         </div>
         <span className={`font-medium ${isFree ? 'text-green-600' : 'text-gray-700'}`}>
-          {isFree ? '免费' : `¥${price}`}
+          {isFree ? 'Free' : `$${price}`}
         </span>
       </div>
 
-      {/* Domain badges */}
       {domains && domains.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-3">
           {domains.map((d) => (
@@ -107,15 +86,14 @@ export default function AgentCard({ agent, onPinToggle, pinned }) {
               key={d}
               className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700"
             >
-              {DOMAIN_LABELS[d] || d}
+              {d}
             </span>
           ))}
         </div>
       )}
 
-      {/* Description */}
-      {description && (
-        <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{description}</p>
+      {displayDescription && (
+        <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{displayDescription}</p>
       )}
     </div>
   );

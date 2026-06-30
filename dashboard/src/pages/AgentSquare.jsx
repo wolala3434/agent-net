@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getAgents, searchAgents } from '../api/client';
 import AgentCard from '../components/AgentCard';
 
-const DOMAINS = ['全部', '客服', '数据分析', '编程助手', '内容生成', '教育', '金融', '医疗', '其他'];
+const DOMAINS = ['All', 'analysis.risk', 'analysis.financial', 'supply-chain', 'general'];
 
 const SORT_OPTIONS = [
-  { value: 'rating', label: '评分最高' },
-  { value: 'usage', label: '调用最多' },
-  { value: 'newest', label: '最新发布' },
+  { value: 'rating', label: 'Highest rated' },
+  { value: 'usage', label: 'Most used' },
+  { value: 'newest', label: 'Newest' },
 ];
 
 export default function AgentSquare() {
@@ -15,25 +15,25 @@ export default function AgentSquare() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchText, setSearchText] = useState('');
-  const [domain, setDomain] = useState('全部');
+  const [domain, setDomain] = useState('All');
   const [sortBy, setSortBy] = useState('rating');
-
-  useEffect(() => {
-    loadAgents();
-  }, []);
 
   const loadAgents = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await getAgents({ domain: domain === '全部' ? undefined : domain, sort_by: sortBy });
-      setAgents(res.agents || []);
+      const res = await getAgents({ domain: domain === 'All' ? undefined : domain, sort_by: sortBy });
+      setAgents(Array.isArray(res) ? res : res?.agents || []);
     } catch (err) {
-      setError('加载失败');
+      setError('Failed to load agents');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadAgents();
+  }, [domain, sortBy]);
 
   const handleSearch = async () => {
     if (!searchText.trim()) {
@@ -43,10 +43,10 @@ export default function AgentSquare() {
     setLoading(true);
     setError(null);
     try {
-      const res = await searchAgents(searchText, domain === '全部' ? undefined : domain, 20);
-      setAgents(res.matches || []);
+      const res = await searchAgents(searchText, domain === 'All' ? undefined : domain, 20);
+      setAgents(res?.matches || []);
     } catch (err) {
-      setError('搜索失败');
+      setError('Search failed');
     } finally {
       setLoading(false);
     }
@@ -56,19 +56,13 @@ export default function AgentSquare() {
     if (e.key === 'Enter') handleSearch();
   };
 
-  useEffect(() => {
-    loadAgents();
-  }, [domain, sortBy]);
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Agent 广场</h1>
-        <p className="mt-2 text-gray-500">发现并选择适合你的智能助手</p>
+        <h1 className="text-3xl font-bold text-gray-900">Agent Square</h1>
+        <p className="mt-2 text-gray-500">Discover registered agents and inspect their capabilities.</p>
       </div>
 
-      {/* Search & Filters */}
       <div className="flex flex-wrap items-center gap-4 mb-6">
         <div className="flex-1 min-w-[240px]">
           <div className="relative">
@@ -77,7 +71,7 @@ export default function AgentSquare() {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="搜索 Agent 名称或描述..."
+              placeholder="Search agents by capability or domain..."
               className="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <svg
@@ -98,7 +92,7 @@ export default function AgentSquare() {
           className="px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {DOMAINS.map((d) => (
-            <option key={d} value={d}>{d === '全部' ? d : d}</option>
+            <option key={d} value={d}>{d}</option>
           ))}
         </select>
 
@@ -113,7 +107,6 @@ export default function AgentSquare() {
         </select>
       </div>
 
-      {/* Loading */}
       {loading && (
         <div className="flex justify-center items-center py-20">
           <div className="flex items-center gap-3 text-blue-600">
@@ -121,12 +114,11 @@ export default function AgentSquare() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            <span>加载中...</span>
+            <span>Loading agents...</span>
           </div>
         </div>
       )}
 
-      {/* Error */}
       {error && !loading && (
         <div className="flex flex-col items-center justify-center py-20">
           <p className="text-red-500 text-lg mb-4">{error}</p>
@@ -134,29 +126,27 @@ export default function AgentSquare() {
             onClick={loadAgents}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            重试
+            Retry
           </button>
         </div>
       )}
 
-      {/* Agent Count */}
       {agents && !loading && (
         <p className="text-sm text-gray-500 mb-4">
-          共 {agents.length} 个 Agent
+          {agents.length} agent{agents.length === 1 ? '' : 's'} available
         </p>
       )}
 
-      {/* Grid */}
       {agents && !loading && !error && (
         <>
           {agents.length === 0 ? (
             <div className="flex justify-center items-center py-20">
-              <p className="text-gray-400 text-lg">暂无数据</p>
+              <p className="text-gray-400 text-lg">No agents registered yet</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {agents.map((agent) => (
-                <AgentCard key={agent.id} agent={agent} />
+                <AgentCard key={agent.id || agent.agent_id} agent={agent} />
               ))}
             </div>
           )}

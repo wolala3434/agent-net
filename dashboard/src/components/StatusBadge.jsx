@@ -1,14 +1,14 @@
 const statusConfig = {
   trial: {
-    label: '试用中',
+    label: 'Trial',
     className: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
   },
   verified: {
-    label: '已验证',
+    label: 'Verified',
     className: 'bg-green-100 text-green-800 border border-green-200',
   },
   low_quality: {
-    label: '低质量',
+    label: 'Needs review',
     className: 'bg-red-100 text-red-800 border border-red-200',
   },
 };
@@ -16,19 +16,19 @@ const statusConfig = {
 const dotConfig = {
   active: {
     dotClass: 'bg-green-500',
-    label: '活跃',
+    label: 'Active',
   },
   inactive: {
     dotClass: 'bg-gray-400',
-    label: '离线',
+    label: 'Inactive',
   },
   online: {
     dotClass: 'bg-green-500',
-    label: '在线',
+    label: 'Online',
   },
   offline: {
     dotClass: 'bg-gray-400',
-    label: '离线',
+    label: 'Offline',
   },
 };
 
@@ -40,11 +40,9 @@ const dynamicStatusColors = {
   cancelled: 'bg-gray-100 text-gray-600 border border-gray-200',
 };
 
-// Generic fallback for unknown statuses
 const defaultColors = 'bg-gray-100 text-gray-600 border border-gray-200';
 
 export default function StatusBadge({ status, size = 'sm', dot = false, labels }) {
-  // Dot-style badge (e.g. active/inactive)
   if (dot) {
     const config = dotConfig[status];
     if (!config) return null;
@@ -58,7 +56,6 @@ export default function StatusBadge({ status, size = 'sm', dot = false, labels }
     );
   }
 
-  // Check built-in status config first
   const builtIn = statusConfig[status];
   if (builtIn) {
     const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
@@ -69,7 +66,6 @@ export default function StatusBadge({ status, size = 'sm', dot = false, labels }
     );
   }
 
-  // Support custom labels map (e.g., from TaskTracker)
   if (labels && labels[status]) {
     const colorClass = dynamicStatusColors[status] || defaultColors;
     const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
@@ -80,14 +76,13 @@ export default function StatusBadge({ status, size = 'sm', dot = false, labels }
     );
   }
 
-  // Dynamic known statuses (running, completed, etc.)
   if (dynamicStatusColors[status]) {
     const labelMap = {
-      running: '进行中',
-      completed: '已完成',
-      pending: '待处理',
-      failed: '失败',
-      cancelled: '已取消',
+      running: 'Running',
+      completed: 'Completed',
+      pending: 'Pending',
+      failed: 'Failed',
+      cancelled: 'Cancelled',
     };
     const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
     return (
@@ -97,11 +92,10 @@ export default function StatusBadge({ status, size = 'sm', dot = false, labels }
     );
   }
 
-  // Fallback: render unknown status as a plain label
   const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
   return (
     <span className={`inline-flex items-center rounded-full font-medium ${sizeClasses} ${defaultColors}`}>
-      {status || '未知'}
+      {status || 'Unknown'}
     </span>
   );
 }

@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan for obvious committed secrets
+        run: |
+          if grep -RInE '(sk-[A-Za-z0-9]{20,}|whsec_[A-Za-z0-9_]+|xox[baprs]-[A-Za-z0-9-]+)' \
+            --exclude-dir=.git \
+            --exclude-dir=node_modules \
+            --exclude=package-lock.json \
+            .; then
+            echo "Potential secret found. Replace it with an example placeholder."
+            exit 1
+          fi
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: secret-scan
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e shared/
+          pip install -e agent-side/sdk/
+          pip install -e platform/backend/
+          pip install ruff
+      
+      - name: Lint with ruff
+        run: |
+          ruff check platform/ agent-side/ shared/
+  
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          pip install -e shared/
+          pip install -e agent-side/sdk/
+          pip install -e platform/backend/
+      
+      - name: Run tests
+        run: |
+          pytest platform/backend/tests/ agent-side/sdk/src/agent_internet/tests/ -v --tb=short
+      
+      - name: Run SDK smoke tests
+        run: |
+          cd agent-side/sdk
+          pytest src/agent_internet/tests/test_smoke.py -v
+
+  dashboard:
+    runs-on: ubuntu-latest
+    needs: secret-scan
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: dashboard/package-lock.json
+
+      - name: Install dashboard dependencies
+        run: npm ci --prefix dashboard
+
+      - name: Build dashboard
+        run: npm --prefix dashboard run build
+  
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, dashboard]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./platform/backend/Dockerfile
+          push: false
+          tags: agent-internet-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Build dashboard image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./dashboard/Dockerfile
+          push: false
+          tags: agent-internet-dashboard:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Build agent image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./agent-side/agents/Dockerfile
+          push: false
+          tags: agent-internet-agent:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

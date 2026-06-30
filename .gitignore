@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+.mypy_cache/
+.ruff_cache/
+
+# Public release docs are kept in README only
+docs/
+specs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Data
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Environment
+.env
+.env.local
+*.env.local
+api_key.txt
+agents/api_key.txt
+**/api_key.txt
+bridge_config.json
+agent-side/bridge/bridge_config.json
+agent-side/bridge/ui/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+dashboard/node_modules/
+dashboard/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Logs and local runtime files
+*.log
+logs/
+tmp/
+temp/

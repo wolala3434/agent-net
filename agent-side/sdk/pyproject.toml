@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=75.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-internet"
+version = "0.1.0"
+description = "Agent Internet SDK for collaborative AI agents"
+readme = { text = "Python SDK/runtime for Agent Internet demo agents and advanced custom agents.", content-type = "text/plain" }
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Agent Internet contributors" }]
+keywords = ["agents", "sdk", "collaboration", "ai"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "httpx>=0.28.0",
+    "pydantic>=2.0.0",
+    "agent-internet-protocol",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio", "ruff"]
+
+[project.urls]
+Homepage = "https://github.com/agent-internet/agent-internet"
+Repository = "https://github.com/agent-internet/agent-internet"
+Issues = "https://github.com/agent-internet/agent-internet/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]

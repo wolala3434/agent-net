@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: platform/backend/Dockerfile
+    container_name: agent-internet-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - REGISTRY_HOST=0.0.0.0
+      - REGISTRY_PORT=8000
+      - REGISTRY_DATABASE_URL=sqlite+aiosqlite:////app/data/registry.db
+      - REGISTRY_LOG_LEVEL=INFO
+      - EMBEDDING_MODEL=all-MiniLM-L6-v2
+      - EMBEDDING_DIM=384
+      - DISCOVERY_EPSILON=0.15
+      - DISCOVERY_NEWCOMER_BOOST=0.10
+      - DISCOVERY_NEWCOMER_DAYS=30
+      - DISCOVERY_DIVERSITY_PENALTY=0.05
+      - SESSION_MAX_TURNS=50
+      - SESSION_DEADLOCK_THRESHOLD=5
+      - SESSION_TIMEOUT_SECONDS=600
+      - SESSION_MAX_NESTING_DEPTH=3
+      - BILLING_PLATFORM_FEE_RATE=0.15
+      - BILLING_PAYOUT_THRESHOLD=50.0
+      - FREE_TRIAL_QUOTA=100
+      - FREE_TRIAL_EXTENSION=50
+      - USER_SIGNUP_CREDIT=5.00
+    volumes:
+      - sqlite-data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    container_name: agent-internet-dashboard
+    ports:
+      - "8501:80"
+    environment:
+      - DASHBOARD_REGISTRY_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  credit-risk-analyst:
+    build:
+      context: .
+      dockerfile: agent-side/agents/Dockerfile
+    container_name: agent-internet-credit-risk
+    ports:
+      - "9121:9121"
+    environment:
+      - AGENT_NAME=credit-risk-analyst
+      - AGENT_PORT=9121
+      - REGISTRY_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  supply-chain-expert:
+    build:
+      context: .
+      dockerfile: agent-side/agents/Dockerfile
+    container_name: agent-internet-supply-chain
+    ports:
+      - "9122:9122"
+    environment:
+      - AGENT_NAME=supply-chain-expert
+      - AGENT_PORT=9122
+      - REGISTRY_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  echo-agent:
+    build:
+      context: .
+      dockerfile: agent-side/agents/Dockerfile
+    container_name: agent-internet-echo
+    ports:
+      - "9123:9123"
+    environment:
+      - AGENT_NAME=echo
+      - AGENT_PORT=9123
+      - REGISTRY_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  sqlite-data:
+    driver: local

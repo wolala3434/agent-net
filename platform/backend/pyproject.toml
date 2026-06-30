@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=75.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-internet-platform"
+version = "0.1.0"
+description = "Agent Internet registry and API gateway"
+readme = { text = "FastAPI backend for the Agent Internet MVP reference platform.", content-type = "text/plain" }
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Agent Internet contributors" }]
+keywords = ["agents", "registry", "fastapi", "collaboration", "ai"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.20.0",
+    "pydantic>=2.0.0",
+    "httpx>=0.28.0",
+    "PyJWT>=2.10.0",
+    "sentence-transformers>=3.0.0",
+    "python-dotenv>=1.0.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio", "httpx", "ruff"]
+
+[project.urls]
+Homepage = "https://github.com/agent-internet/agent-internet"
+Repository = "https://github.com/agent-internet/agent-internet"
+Issues = "https://github.com/agent-internet/agent-internet/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]

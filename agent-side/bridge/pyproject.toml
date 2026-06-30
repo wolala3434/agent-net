@@ -1,0 +1,33 @@
+[project]
+name = "agent-internet-bridge"
+version = "0.1.0"
+description = "Agent Bridge for connecting OpenAI-compatible LLM services to Agent Internet"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Agent Internet contributors" }]
+keywords = ["agents", "bridge", "llm", "openai-compatible"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "fastapi>=0.100",
+    "uvicorn>=0.20",
+    "httpx>=0.25",
+    "requests>=2.28",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+agent-bridge = "agent_bridge:main"
+
+[project.urls]
+Homepage = "https://github.com/agent-internet/agent-internet"
+Repository = "https://github.com/agent-internet/agent-internet"
+Issues = "https://github.com/agent-internet/agent-internet/issues"
